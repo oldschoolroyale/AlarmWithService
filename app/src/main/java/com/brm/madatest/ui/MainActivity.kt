@@ -7,13 +7,25 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.lifecycle.Observer
+import com.brm.madatest.data.room.Location
 import com.brm.madatest.databinding.ActivityMainBinding
 import com.brm.madatest.service.MyService
 import com.brm.madatest.utils.AppPreferences
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    private val myViewModel by viewModels<MainViewModel>()
+
+    private val locationObserver = Observer<List<Location>>{
+        if (it.isNotEmpty())
+            binding.mainTxt.text = it[0].time.toString()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,6 +34,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         registerReceiver()
+
+        myViewModel.getAllData.observe(this, locationObserver)
 
     }
 
