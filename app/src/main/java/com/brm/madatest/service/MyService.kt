@@ -1,31 +1,66 @@
 package com.brm.madatest.service
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.app.Activity
-import android.view.View
 import com.brm.madatest.data.room.Location
-import com.brm.madatest.ui.MainViewModel
+import com.brm.madatest.data.room.LocationRepo
 import com.brm.madatest.utils.AppPreferences
-import java.lang.Exception
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
+import com.google.android.gms.maps.CameraUpdateFactory
+
+import com.google.android.gms.maps.model.LatLng
+
+import com.google.android.gms.tasks.OnSuccessListener
+
+import android.content.pm.PackageManager
+import android.media.MediaPlayer
+import android.media.MediaRecorder
+import android.os.CountDownTimer
+import android.os.Environment
+import android.util.Log
+
+import androidx.core.app.ActivityCompat
+import com.brm.madatest.utils.AudioRecorder
+
+import com.google.android.gms.location.LocationServices
+
+import com.google.android.gms.location.FusedLocationProviderClient
+import java.io.IOException
+import javax.inject.Named
 
 
-
-class MyService: BroadcastReceiver() {
+@AndroidEntryPoint
+class MyService @Inject constructor() : BroadcastReceiver(), CoroutineScope {
 
     @Inject
-    lateinit var mainViewModel: MainViewModel
+    lateinit var repo: LocationRepo
+
+    private var job: Job = Job()
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
+
+
+
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        mainViewModel.insertData(Location(
-            0,
-            1204102401240,
-            55.04444,
-            40.000000
-        ))
+//        startRecording()
+    }
+
+
+
+    private fun cleanUp(){
+        AppPreferences.location = 0
+        launch {
+            repo.deleteAll()
+        }
     }
 }
